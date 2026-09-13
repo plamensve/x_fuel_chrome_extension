@@ -17,9 +17,9 @@
 
 Extension-ът използва същия публичен Supabase източник като сайта:
 
-- Supabase проект: \`eaqvhxfvozhzatrnbkvx.supabase.co\`
-- Таблица: \`fuel_prices\`
-- Достъп: само GET заявки с публикуваемия \`sb_publishable_*\` ключ
+- Supabase проект: eaqvhxfvozhzatrnbkvx.supabase.co
+- Таблица: fuel_prices
+- Достъп: само GET заявки с публикуваемия sb_publishable_* ключ
 - Чувствителни Supabase ключове не са включени и не трябва да се добавят
 
 Не се използват content scripts и не се променя съдържанието на goriva.online. Сайтът и extension-ът остават независими.
@@ -28,26 +28,26 @@ Extension-ът използва същия публичен Supabase източ�
 
 ## Локално тестване
 
-1. Отвори \`chrome://extensions\`.
-2. Включи **Developer mode**.
-3. Натисни **Load unpacked**.
-4. Избери root папката на това репо, в която се намира \`manifest.json\`.
+1. Отвори chrome://extensions.
+2. Включи Developer mode.
+3. Натисни Load unpacked.
+4. Избери root папката на това репо, в която се намира manifest.json.
 5. Натисни иконата на extension-а и избери град и гориво.
 
-При проблем отвори **Inspect views** за popup-а или service worker-а и провери конзолата.
+При проблем отвори Inspect views за popup-а или service worker-а и провери конзолата.
 
 ## Пакетиране
 
 За публикуване в Chrome Web Store ZIP файлът трябва да съдържа директно:
 
-- \`manifest.json\`
-- \`popup.html\`
-- \`popup.css\`
-- \`popup.js\`
-- \`service-worker.js\`
-- папките \`icons/\` и \`assets/\`
+- manifest.json
+- popup.html
+- popup.css
+- popup.js
+- service-worker.js
+- папките icons/ и assets/
 
-Не пакетирай целия Git репо като вътрешна папка; \`manifest.json\` трябва да бъде в корена на ZIP файла.
+Не пакетирай целия Git репо като вътрешна папка; manifest.json трябва да бъде в корена на ZIP файла.
 
 ## Поверителност
 
