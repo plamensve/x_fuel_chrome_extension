@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="bg">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="Content-Security-Policy" content="script-src 'self'; object-src 'self';">
+  <title>Goriva.online</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <div class="app">
+    <header class="brand-bar">
+      <a class="brand" id="brand-link" href="https://goriva.online/" aria-label="Отвори goriva.online">
+        <img src="assets/goriva-icon.svg" alt="">
+        <span class="brand-copy">
+          <strong>goriva.online</strong>
+          <small>Цени на горивата</small>
+        </span>
+      </a>
+      <button class="icon-button" id="refresh-button" type="button" aria-label="Обнови цените" title="Обнови цените">
+        <span aria-hidden="true">↻</span>
+      </button>
+    </header>
+
+    <main class="content">
+      <section class="controls" aria-label="Филтри">
+        <label class="field">
+          <span>Град</span>
+          <select id="city-select">
+            <option value="sofia">София</option>
+            <option value="plovdiv">Пловдив</option>
+            <option value="varna">Варна</option>
+            <option value="burgas">Бургас</option>
+            <option value="ruse">Русе</option>
+            <option value="stara-zagora">Стара Загора</option>
+          </select>
+        </label>
+
+        <label class="field">
+          <span>Гориво</span>
+          <select id="fuel-select">
+            <option value="diesel">Дизел</option>
+            <option value="a95">A95</option>
+            <option value="lpg">LPG</option>
+            <option value="a100">A100</option>
+            <option value="diesel_plus">Дизел +</option>
+            <option value="methane">Метан</option>
+          </select>
+        </label>
+      </section>
+
+      <div class="data-status" id="data-status" role="status" aria-live="polite">
+        Зареждане на актуалните цени…
+      </div>
+
+      <section class="summary-card" id="summary-card" hidden>
+        <div class="summary-heading">
+          <div>
+            <span class="eyebrow">Избран продукт</span>
+            <h1 id="summary-title">Дизел</h1>
+          </div>
+          <span class="unit-pill" id="fuel-unit">€/л</span>
+        </div>
+
+        <div class="main-price">
+          <span>Средна цена</span>
+          <strong id="average-value">—</strong>
+        </div>
+
+        <div class="metric-grid">
+          <div class="metric">
+            <span>Най-ниска</span>
+            <strong id="minimum-value">—</strong>
+          </div>
+          <div class="metric">
+            <span>Най-висока</span>
+            <strong id="maximum-value">—</strong>
+          </div>
+          <div class="metric">
+            <span>Обекти</span>
+            <strong id="station-count">—</strong>
+          </div>
+        </div>
+
+        <p class="range" id="range-text">—</p>
+      </section>
+
+      <section class="top-section" id="top-section" hidden aria-labelledby="top-title">
+        <div class="section-heading">
+          <div>
+            <span class="eyebrow">Класация</span>
+            <h2 id="top-title">Най-изгодни обекти</h2>
+          </div>
+          <span class="top-count">Топ 5</span>
+        </div>
+        <ol class="top-list" id="top-list"></ol>
+      </section>
+
+      <section class="empty-state" id="empty-state" hidden>
+        <div class="empty-icon" aria-hidden="true">⛽</div>
+        <h2>Няма налична цена</h2>
+        <p>За избрания град и гориво няма публикуван запис.</p>
+      </section>
+
+      <section class="error-state" id="error-state" hidden>
+        <div class="empty-icon" aria-hidden="true">!</div>
+        <h2>Данните не се заредиха</h2>
+        <p id="error-message">Опитай отново след малко.</p>
+        <button class="secondary-button" id="retry-button" type="button">Опитай отново</button>
+      </section>
+
+      <a class="site-button" id="open-city-link" href="https://goriva.online/cities/sofia/" target="_blank" rel="noopener noreferrer">
+        Виж всички цени в сайта
+        <span aria-hidden="true">↗</span>
+      </a>
+
+      <p class="disclaimer">
+        Цените са от публикуваните записи в goriva.online. Провери цената на място преди зареждане.
+      </p>
+    </main>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>

@@ -1,0 +1,8 @@
+# Local and operating-system files
+.DS_Store
+Thumbs.db
+.idea/
+
+# Packages generated for Chrome Web Store
+*.zip
+dist/
