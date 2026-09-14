@@ -206,6 +206,15 @@ select {
   border-color: #72c5a3;
 }
 
+.brand-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+
+.brand-button:disabled:hover {
+  border-color: #d1dce6;
+}
+
 .brand-button.is-active {
   border-color: #2ca975;
   background: #e9f7f0;

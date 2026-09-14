@@ -23,6 +23,13 @@ const DEFAULT_SETTINGS = {
 };
 
 const GENERIC_STATION_LOGO = "assets/station-logos/generic-fuel-pump.png";
+const FEATURED_BRANDS = [
+  {key: "eko", label: "ЕКО", logo: "assets/station-logos/eko-card-logo.png"},
+  {key: "lukoil", label: "Лукойл", logo: "assets/station-logos/lukoil-card-logo.jpg"},
+  {key: "insa", label: "Инса Ойл", logo: "assets/station-logos/insa-card-logo.png"},
+  {key: "petrol", label: "Петрол", logo: "assets/station-logos/petrol-logo.jpg"},
+  {key: "omv", label: "ОМВ", logo: "assets/station-logos/omv-logo.jpg"}
+];
 const BRAND_LOGOS = [
   {match: ["ECO PETROL", "ЕКО ПЕТРОЛ"], src: "assets/station-logos/ecopetrol.svg"},
   {match: ["POWER OIL", "POWERОIL", "ПАУЪР ОЙЛ"], src: "assets/station-logos/power-oil.png"},
@@ -140,13 +147,14 @@ function clearView() {
   topList.replaceChildren();
 }
 
-function createBrandButton(key, label, count, logo) {
+function createBrandButton(key, label, count, logo, disabled = false) {
   const button = document.createElement("button");
   button.type = "button";
   button.className = "brand-button";
   button.dataset.brand = key;
   button.classList.toggle("is-active", selectedBrand === key);
   button.setAttribute("aria-pressed", String(selectedBrand === key));
+  button.disabled = disabled;
 
   if (logo) {
     const image = document.createElement("img");
@@ -168,32 +176,44 @@ function createBrandButton(key, label, count, logo) {
     button.appendChild(badge);
   }
 
-  button.addEventListener("click", async () => {
-    selectedBrand = key;
-    await saveSettings();
-    render();
-  });
+  if (!disabled) {
+    button.addEventListener("click", async () => {
+      selectedBrand = key;
+      await saveSettings();
+      render();
+    });
+  }
 
   return button;
 }
 
 function renderBrandButtons(stats) {
   const brands = Array.isArray(stats?.brands) ? stats.brands : [];
+  const featured = FEATURED_BRANDS.map(brand => ({
+    ...brand,
+    stats: brands.find(item => item.key === brand.key) || null
+  }));
 
-  if (selectedBrand !== "all" && !brands.some(brand => brand.key === selectedBrand)) {
+  if (selectedBrand !== "all" && !featured.some(brand => brand.key === selectedBrand && brand.stats)) {
     selectedBrand = "all";
   }
 
   brandButtons.replaceChildren();
-  brandButtons.appendChild(createBrandButton("all", "Всички", stats?.count));
+  brandButtons.appendChild(createBrandButton("all", "Всички бензиностанции", stats?.count));
 
-  brands.forEach(brand => {
+  featured.forEach(brand => {
     brandButtons.appendChild(
-      createBrandButton(brand.key, brand.label, brand.count, logoForBrand(brand.label))
+      createBrandButton(
+        brand.key,
+        brand.label,
+        brand.stats?.count ?? 0,
+        brand.logo,
+        !brand.stats
+      )
     );
   });
 
-  brandFilterCount.textContent = brands.length ? brands.length + " вериги" : "";
+  brandFilterCount.textContent = "5 вериги";
 }
 
 function renderTop(top, unit) {

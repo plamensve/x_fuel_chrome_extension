@@ -3,7 +3,7 @@ const SUPABASE_KEY = "sb_publishable_u4ymkO5tFBauze0rVOkf-Q_kvbiIdwH";
 const PRICE_TABLE = "fuel_prices";
 const PAGE_SIZE = 1000;
 const MAX_PAGES_PER_CITY = 20;
-const CACHE_KEY = "goriva_extension_snapshot_v2";
+const CACHE_KEY = "goriva_extension_snapshot_v3";
 const CACHE_TTL_MS = 3 * 60 * 1000;
 
 const CITIES = [
@@ -55,6 +55,29 @@ function dateKey(value) {
 
 function stationIdentity(row) {
   return normalize(row.location) || normalize(row.city) || normalize(row.station) || "НЕУТОЧНЕН ОБЕКТ";
+}
+
+function brandIdentity(value) {
+  const name = String(value || "").trim();
+  const normalized = normalize(name);
+  const isEkoOil = /(?:^|[^\p{L}\p{N}])(?:eko|еко)[\s\-–—_.\/]*(?:oil|ойл)(?=$|[^\p{L}\p{N}])/iu.test(name);
+  const hasEkoToken = /(^|[^\p{L}\p{N}])(?:eko|еко)(?=$|[^\p{L}\p{N}])/iu.test(name);
+
+  if (hasEkoToken && !isEkoOil) return {key: "eko", label: "ЕКО"};
+  if (normalized.includes("LUKOIL") || normalized.includes("ЛУКОЙЛ")) {
+    return {key: "lukoil", label: "Лукойл"};
+  }
+  if (normalized.includes("INSA") || normalized.includes("ИНСА")) {
+    return {key: "insa", label: "Инса Ойл"};
+  }
+  if (normalized === "PETROL" || normalized === "ПЕТРОЛ") {
+    return {key: "petrol", label: "Петрол"};
+  }
+  if (normalized === "OMV" || normalized === "ОМВ") {
+    return {key: "omv", label: "ОМВ"};
+  }
+
+  return {key: normalized, label: name || "Бензиностанция"};
 }
 
 async function fetchCityRows(cityName) {
@@ -189,8 +212,9 @@ function summarize(rows) {
     const entriesByBrand = new Map();
 
     entries.forEach(entry => {
-      const key = normalize(entry.brand);
-      const group = entriesByBrand.get(key) || {key, label: entry.brand, entries: []};
+      const identity = brandIdentity(entry.brand);
+      const key = identity.key;
+      const group = entriesByBrand.get(key) || {...identity, entries: []};
       group.entries.push(entry);
       entriesByBrand.set(key, group);
     });
