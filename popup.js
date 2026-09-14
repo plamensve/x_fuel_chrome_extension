@@ -172,7 +172,7 @@ function createBrandButton(key, label, logo, disabled = false) {
     copy.append(
       document.createTextNode("Всички"),
       document.createElement("br"),
-      document.createTextNode("бензиностанции")
+      document.createTextNode("обекти")
     );
   } else {
     copy.textContent = label;
@@ -203,7 +203,7 @@ function renderBrandButtons(stats) {
 
   brandButtons.replaceChildren();
   brandButtons.appendChild(
-    createBrandButton("all", "Всички бензиностанции", GENERIC_STATION_LOGO)
+    createBrandButton("all", "Всички обекти", GENERIC_STATION_LOGO)
   );
 
   featured.forEach(brand => {
