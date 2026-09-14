@@ -26,7 +26,7 @@ const GENERIC_STATION_LOGO = "assets/station-logos/generic-fuel-pump.png";
 const FEATURED_BRANDS = [
   {key: "eko", label: "ЕКО", logo: "assets/station-logos/eko-card-logo.png"},
   {key: "lukoil", label: "Лукойл", logo: "assets/station-logos/lukoil-card-logo.jpg"},
-  {key: "insa", label: "Инса Ойл", logo: "assets/station-logos/insa-card-logo.png"},
+  {key: "insa", label: "Инса", logo: "assets/station-logos/insa-card-logo.png"},
   {key: "petrol", label: "Петрол", logo: "assets/station-logos/petrol-logo.jpg"},
   {key: "omv", label: "ОМВ", logo: "assets/station-logos/omv-logo.jpg"}
 ];
@@ -147,10 +147,11 @@ function clearView() {
   topList.replaceChildren();
 }
 
-function createBrandButton(key, label, count, logo, disabled = false) {
+function createBrandButton(key, label, logo, disabled = false) {
   const button = document.createElement("button");
   button.type = "button";
   button.className = "brand-button";
+  button.classList.toggle("is-all", key === "all");
   button.dataset.brand = key;
   button.classList.toggle("is-active", selectedBrand === key);
   button.setAttribute("aria-pressed", String(selectedBrand === key));
@@ -167,14 +168,16 @@ function createBrandButton(key, label, count, logo, disabled = false) {
   }
 
   const copy = document.createElement("span");
-  copy.textContent = label;
-  button.appendChild(copy);
-
-  if (Number.isFinite(count)) {
-    const badge = document.createElement("small");
-    badge.textContent = String(count);
-    button.appendChild(badge);
+  if (key === "all") {
+    copy.append(
+      document.createTextNode("Всички"),
+      document.createElement("br"),
+      document.createTextNode("бензиностанции")
+    );
+  } else {
+    copy.textContent = label;
   }
+  button.appendChild(copy);
 
   if (!disabled) {
     button.addEventListener("click", async () => {
@@ -199,14 +202,15 @@ function renderBrandButtons(stats) {
   }
 
   brandButtons.replaceChildren();
-  brandButtons.appendChild(createBrandButton("all", "Всички бензиностанции", stats?.count));
+  brandButtons.appendChild(
+    createBrandButton("all", "Всички бензиностанции", GENERIC_STATION_LOGO)
+  );
 
   featured.forEach(brand => {
     brandButtons.appendChild(
       createBrandButton(
         brand.key,
         brand.label,
-        brand.stats?.count ?? 0,
         brand.logo,
         !brand.stats
       )

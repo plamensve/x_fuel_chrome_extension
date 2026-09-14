@@ -178,7 +178,7 @@ select {
 
 .brand-buttons {
   display: flex;
-  gap: 7px;
+  gap: 6px;
   padding: 2px 1px 6px;
   overflow-x: auto;
   scrollbar-color: #b9c7d3 transparent;
@@ -187,11 +187,11 @@ select {
 
 .brand-button {
   display: inline-flex;
-  min-height: 39px;
+  min-height: 44px;
   flex: 0 0 auto;
   align-items: center;
   gap: 6px;
-  padding: 5px 9px;
+  padding: 6px 8px;
   border: 1px solid #d1dce6;
   border-radius: 11px;
   background: #ffffff;
@@ -200,6 +200,25 @@ select {
   font-size: 11px;
   font-weight: 800;
   transition: border-color 150ms ease, background 150ms ease, box-shadow 150ms ease;
+}
+
+.brand-button span {
+  white-space: nowrap;
+}
+
+.brand-button.is-all {
+  width: 118px;
+  max-width: 118px;
+  gap: 5px;
+  padding: 5px 6px;
+}
+
+.brand-button.is-all span {
+  max-width: 70px;
+  white-space: normal;
+  font-size: 10px;
+  line-height: 1.08;
+  text-align: left;
 }
 
 .brand-button:hover {
@@ -223,25 +242,13 @@ select {
 }
 
 .brand-button img {
-  width: 25px;
-  height: 25px;
+  width: 29px;
+  height: 29px;
   padding: 2px;
   border: 1px solid #e7edf2;
   border-radius: 7px;
   background: #ffffff;
   object-fit: contain;
-}
-
-.brand-button small {
-  display: inline-grid;
-  min-width: 18px;
-  height: 18px;
-  place-items: center;
-  padding: 0 4px;
-  border-radius: 999px;
-  background: #eef3f6;
-  color: #617589;
-  font-size: 9px;
 }
 
 .data-status.is-stale {
