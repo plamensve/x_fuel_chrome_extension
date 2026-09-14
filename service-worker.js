@@ -3,7 +3,7 @@ const SUPABASE_KEY = "sb_publishable_u4ymkO5tFBauze0rVOkf-Q_kvbiIdwH";
 const PRICE_TABLE = "fuel_prices";
 const PAGE_SIZE = 1000;
 const MAX_PAGES_PER_CITY = 20;
-const CACHE_KEY = "goriva_extension_snapshot_v1";
+const CACHE_KEY = "goriva_extension_snapshot_v2";
 const CACHE_TTL_MS = 3 * 60 * 1000;
 
 const CITIES = [
@@ -162,28 +162,50 @@ function summarize(rows) {
       return;
     }
 
-    const prices = entries.map(entry => entry.price);
-    const lowestByStation = new Map();
+    const summarizeEntries = selectedEntries => {
+      const prices = selectedEntries.map(entry => entry.price);
+      const lowestByStation = new Map();
+
+      selectedEntries.forEach(entry => {
+        const key = normalize(entry.location);
+        const current = lowestByStation.get(key);
+
+        if (!current || entry.price < current.price) {
+          lowestByStation.set(key, entry);
+        }
+      });
+
+      return {
+        average: prices.reduce((sum, price) => sum + price, 0) / prices.length,
+        minimum: Math.min(...prices),
+        maximum: Math.max(...prices),
+        count: new Set(selectedEntries.map(entry => normalize(entry.location))).size,
+        top: [...lowestByStation.values()]
+          .sort((a, b) => a.price - b.price || a.location.localeCompare(b.location, "bg"))
+          .slice(0, 5)
+      };
+    };
+
+    const entriesByBrand = new Map();
 
     entries.forEach(entry => {
-      const key = normalize(entry.location);
-      const current = lowestByStation.get(key);
-
-      if (!current || entry.price < current.price) {
-        lowestByStation.set(key, entry);
-      }
+      const key = normalize(entry.brand);
+      const group = entriesByBrand.get(key) || {key, label: entry.brand, entries: []};
+      group.entries.push(entry);
+      entriesByBrand.set(key, group);
     });
 
-    const top = [...lowestByStation.values()]
-      .sort((a, b) => a.price - b.price || a.location.localeCompare(b.location, "bg"))
-      .slice(0, 5);
+    const brands = [...entriesByBrand.values()]
+      .map(group => ({
+        key: group.key,
+        label: group.label,
+        ...summarizeEntries(group.entries)
+      }))
+      .sort((a, b) => a.label.localeCompare(b.label, "bg"));
 
     fuels[fuel.key] = {
-      average: prices.reduce((sum, price) => sum + price, 0) / prices.length,
-      minimum: Math.min(...prices),
-      maximum: Math.max(...prices),
-      count: new Set(entries.map(entry => normalize(entry.location))).size,
-      top
+      ...summarizeEntries(entries),
+      brands
     };
   });
 

@@ -151,6 +151,90 @@ select {
   line-height: 1.45;
 }
 
+.brand-filter {
+  margin-top: 13px;
+}
+
+.brand-filter-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 7px;
+  color: #52677d;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+}
+
+.brand-filter-heading small {
+  color: #8291a1;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: normal;
+  text-transform: none;
+}
+
+.brand-buttons {
+  display: flex;
+  gap: 7px;
+  padding: 2px 1px 6px;
+  overflow-x: auto;
+  scrollbar-color: #b9c7d3 transparent;
+  scrollbar-width: thin;
+}
+
+.brand-button {
+  display: inline-flex;
+  min-height: 39px;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 9px;
+  border: 1px solid #d1dce6;
+  border-radius: 11px;
+  background: #ffffff;
+  color: #314960;
+  cursor: pointer;
+  font-size: 11px;
+  font-weight: 800;
+  transition: border-color 150ms ease, background 150ms ease, box-shadow 150ms ease;
+}
+
+.brand-button:hover {
+  border-color: #72c5a3;
+}
+
+.brand-button.is-active {
+  border-color: #2ca975;
+  background: #e9f7f0;
+  color: #176f50;
+  box-shadow: 0 0 0 2px rgba(44, 169, 117, 0.11);
+}
+
+.brand-button img {
+  width: 25px;
+  height: 25px;
+  padding: 2px;
+  border: 1px solid #e7edf2;
+  border-radius: 7px;
+  background: #ffffff;
+  object-fit: contain;
+}
+
+.brand-button small {
+  display: inline-grid;
+  min-width: 18px;
+  height: 18px;
+  place-items: center;
+  padding: 0 4px;
+  border-radius: 999px;
+  background: #eef3f6;
+  color: #617589;
+  font-size: 9px;
+}
+
 .data-status.is-stale {
   color: #9a6700;
 }
@@ -285,7 +369,7 @@ p {
 
 .top-list li {
   display: grid;
-  grid-template-columns: 25px minmax(0, 1fr) auto;
+  grid-template-columns: 25px 30px minmax(0, 1fr) auto;
   align-items: center;
   gap: 9px;
   min-height: 48px;
@@ -294,6 +378,16 @@ p {
   border-radius: 11px;
   background: #fbfdff;
   counter-increment: top-item;
+}
+
+.top-item-logo {
+  width: 30px;
+  height: 30px;
+  padding: 3px;
+  border: 1px solid #e5ebf0;
+  border-radius: 8px;
+  background: #ffffff;
+  object-fit: contain;
 }
 
 .top-list li::before {

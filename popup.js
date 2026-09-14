@@ -18,8 +18,47 @@ const FUELS = [
 
 const DEFAULT_SETTINGS = {
   city: "sofia",
-  fuel: "diesel"
+  fuel: "diesel",
+  brand: "all"
 };
+
+const GENERIC_STATION_LOGO = "assets/station-logos/generic-fuel-pump.png";
+const BRAND_LOGOS = [
+  {match: ["ECO PETROL", "ЕКО ПЕТРОЛ"], src: "assets/station-logos/ecopetrol.svg"},
+  {match: ["POWER OIL", "POWERОIL", "ПАУЪР ОЙЛ"], src: "assets/station-logos/power-oil.png"},
+  {match: ["ТОПЛИВО", "TOPLIVO"], src: "assets/station-logos/toplivo-logo.png"},
+  {match: ["ПЕГАС", "PEGAS"], src: "assets/station-logos/pegas-logo.png"},
+  {match: ["ROMPETROL", "РОМПЕТРОЛ"], src: "assets/station-logos/rompetrol-logo.png"},
+  {match: ["PETROL", "ПЕТРОЛ"], src: "assets/station-logos/petrol-logo.jpg"},
+  {match: ["INSA", "ИНСА"], src: "assets/station-logos/insa-card-logo.png"},
+  {match: ["OMV", "ОМВ"], src: "assets/station-logos/omv-logo.jpg"},
+  {match: ["SHELL", "ШЕЛ"], src: "assets/station-logos/shell-logo.png"},
+  {match: ["LUKOIL", "ЛУКОЙЛ"], src: "assets/station-logos/lukoil-card-logo.jpg"},
+  {match: ["KRUIZ", "CRUISE", "КРУИЗ"], src: "assets/station-logos/kruiz-logo.png"},
+  {match: ["BULMARKET", "БУЛМАРКЕТ"], src: "assets/station-logos/bulmarket.svg"},
+  {match: ["HIMOIL", "CHIMOIL", "ХИМОЙЛ"], src: "assets/station-logos/himoil-logo.png"},
+  {match: ["DIESELOR", "DISELOR", "DIESELER", "ДИЗЕЛОР"], src: "assets/station-logos/diselor.svg"},
+  {match: ["BENITA", "БЕНИТА"], src: "assets/station-logos/benita.svg"}
+];
+
+function normalizeBrand(value) {
+  return String(value || "").trim().toLocaleUpperCase("bg-BG");
+}
+
+function logoForBrand(brand) {
+  const normalized = normalizeBrand(brand);
+  const matched = BRAND_LOGOS.find(item => item.match.some(token => normalized.includes(token)));
+
+  if (matched) return matched.src;
+
+  const name = String(brand || "");
+  const isEkoOil = /(?:^|[^\p{L}\p{N}])(?:eko|еко)[\s\-–—_.\/]*(?:oil|ойл)(?=$|[^\p{L}\p{N}])/iu.test(name);
+  const hasEkoToken = /(^|[^\p{L}\p{N}])(?:eko|еко)(?=$|[^\p{L}\p{N}])/iu.test(name);
+
+  return hasEkoToken && !isEkoOil
+    ? "assets/station-logos/eko-card-logo.png"
+    : GENERIC_STATION_LOGO;
+}
 
 const citySelect = document.getElementById("city-select");
 const fuelSelect = document.getElementById("fuel-select");
@@ -41,8 +80,11 @@ const emptyState = document.getElementById("empty-state");
 const errorState = document.getElementById("error-state");
 const errorMessage = document.getElementById("error-message");
 const openCityLink = document.getElementById("open-city-link");
+const brandButtons = document.getElementById("brand-buttons");
+const brandFilterCount = document.getElementById("brand-filter-count");
 
 let snapshot = null;
+let selectedBrand = "all";
 
 function getCity() {
   return CITIES.find(city => city.key === citySelect.value) || CITIES[0];
@@ -98,6 +140,62 @@ function clearView() {
   topList.replaceChildren();
 }
 
+function createBrandButton(key, label, count, logo) {
+  const button = document.createElement("button");
+  button.type = "button";
+  button.className = "brand-button";
+  button.dataset.brand = key;
+  button.classList.toggle("is-active", selectedBrand === key);
+  button.setAttribute("aria-pressed", String(selectedBrand === key));
+
+  if (logo) {
+    const image = document.createElement("img");
+    image.src = logo;
+    image.alt = "";
+    image.addEventListener("error", () => {
+      image.src = GENERIC_STATION_LOGO;
+    }, {once: true});
+    button.appendChild(image);
+  }
+
+  const copy = document.createElement("span");
+  copy.textContent = label;
+  button.appendChild(copy);
+
+  if (Number.isFinite(count)) {
+    const badge = document.createElement("small");
+    badge.textContent = String(count);
+    button.appendChild(badge);
+  }
+
+  button.addEventListener("click", async () => {
+    selectedBrand = key;
+    await saveSettings();
+    render();
+  });
+
+  return button;
+}
+
+function renderBrandButtons(stats) {
+  const brands = Array.isArray(stats?.brands) ? stats.brands : [];
+
+  if (selectedBrand !== "all" && !brands.some(brand => brand.key === selectedBrand)) {
+    selectedBrand = "all";
+  }
+
+  brandButtons.replaceChildren();
+  brandButtons.appendChild(createBrandButton("all", "Всички", stats?.count));
+
+  brands.forEach(brand => {
+    brandButtons.appendChild(
+      createBrandButton(brand.key, brand.label, brand.count, logoForBrand(brand.label))
+    );
+  });
+
+  brandFilterCount.textContent = brands.length ? brands.length + " вериги" : "";
+}
+
 function renderTop(top, unit) {
   topList.replaceChildren();
 
@@ -119,8 +217,16 @@ function renderTop(top, unit) {
     price.className = "top-item-price";
     price.textContent = formatPrice(item.price, unit);
 
+    const logo = document.createElement("img");
+    logo.className = "top-item-logo";
+    logo.src = logoForBrand(item.brand);
+    logo.alt = "";
+    logo.addEventListener("error", () => {
+      logo.src = GENERIC_STATION_LOGO;
+    }, {once: true});
+
     copy.append(brand, location);
-    row.append(copy, price);
+    row.append(logo, copy, price);
     topList.appendChild(row);
   });
 
@@ -140,6 +246,7 @@ function render() {
   openCityLink.href = city.url;
 
   if (!cityData || cityData.error) {
+    renderBrandButtons(null);
     emptyState.hidden = false;
     setMessage("Няма заредени данни за " + city.label + ".", snapshot.stale);
     return;
@@ -148,6 +255,7 @@ function render() {
   const stats = cityData.fuels[fuel.key];
 
   if (!stats) {
+    renderBrandButtons(null);
     emptyState.hidden = false;
     setMessage(
       "Последни налични данни за " + city.label + ": " + formatDateKey(cityData.date),
@@ -156,18 +264,31 @@ function render() {
     return;
   }
 
+  renderBrandButtons(stats);
+  const activeStats = selectedBrand === "all"
+    ? stats
+    : stats.brands.find(brand => brand.key === selectedBrand);
+
+  if (!activeStats) {
+    emptyState.hidden = false;
+    return;
+  }
+
   summaryCard.hidden = false;
-  averageValue.textContent = formatPrice(stats.average, fuel.unit);
-  minimumValue.textContent = formatPrice(stats.minimum, fuel.unit);
-  maximumValue.textContent = formatPrice(stats.maximum, fuel.unit);
-  stationCount.textContent = String(stats.count);
+  summaryTitle.textContent = selectedBrand === "all"
+    ? fuel.label
+    : fuel.label + " · " + activeStats.label;
+  averageValue.textContent = formatPrice(activeStats.average, fuel.unit);
+  minimumValue.textContent = formatPrice(activeStats.minimum, fuel.unit);
+  maximumValue.textContent = formatPrice(activeStats.maximum, fuel.unit);
+  stationCount.textContent = String(activeStats.count);
   rangeText.textContent =
     "Диапазон: " +
-    formatPrice(stats.minimum, fuel.unit) +
+    formatPrice(activeStats.minimum, fuel.unit) +
     " – " +
-    formatPrice(stats.maximum, fuel.unit);
+    formatPrice(activeStats.maximum, fuel.unit);
 
-  renderTop(stats.top || [], fuel.unit);
+  renderTop(activeStats.top || [], fuel.unit);
 
   const freshness = snapshot.stale ? " (кеширани данни)" : "";
   setMessage(
@@ -179,7 +300,8 @@ function render() {
 async function saveSettings() {
   await chrome.storage.sync.set({
     city: citySelect.value,
-    fuel: fuelSelect.value
+    fuel: fuelSelect.value,
+    brand: selectedBrand
   });
 }
 
@@ -193,6 +315,7 @@ async function loadSettings() {
   if (FUELS.some(fuel => fuel.key === settings.fuel)) {
     fuelSelect.value = settings.fuel;
   }
+  selectedBrand = typeof settings.brand === "string" ? settings.brand : "all";
 }
 
 async function requestSnapshot(force) {
@@ -222,11 +345,13 @@ async function requestSnapshot(force) {
 }
 
 citySelect.addEventListener("change", async () => {
+  selectedBrand = "all";
   await saveSettings();
   render();
 });
 
 fuelSelect.addEventListener("change", async () => {
+  selectedBrand = "all";
   await saveSettings();
   render();
 });
